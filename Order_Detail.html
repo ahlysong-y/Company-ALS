@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order Detail</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
+</head>
+<body onload="loadData()">
+  <div class="container-fluid bg-primary">
+    <h3 class="py-2 mx-2 text-white">Company ALS</h3>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2">
+        <ul class="nav flex-column">
+          <li class="nav-item my-2 d-flex justify-content-center"><a class="nav-link text-dark fw-bold" href="index.html">Home</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Category.html">Category</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Employee.html">Employee</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Customer.html">Customer</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Order.html">Order</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Order_Detail.html">Order Detail</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Product.html">Product</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Shipper.html">Shipper</a></li>
+          <li class="nav-item my-2 d-flex justify-content-center bg-secondary"><a class="nav-link text-white" href="Supplier.html">Supplier</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-10 bg-light">
+        <div class="row">
+          <div class="col-md-5">
+            <label class="form-label">Order Detail List</label>
+            <input type="search" class="form-control" id="search" placeholder="Search by ID" onkeyup="searchTable()">
+          </div>
+          <div class="col-md-1">
+            <label class="form-label text-light">.</label><br />
+            <button class="btn btn-outline-dark" onclick="loadData()"><i class="bi bi-arrow-clockwise"></i></button>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-light">Add</label><br />
+            <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#addModal" onclick="prepareModal()">
+              <i class="bi bi-plus-circle-fill text-success"></i> Add New
+            </button>
+          </div>
+
+          <div class="col-md-12 mt-4">
+            <div class="table-responsive">
+              <table class="table table-bordered text-center" id="categoryTable">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Order ID</th>
+                    <th>Product ID</th>
+                    <th>Quantity</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" onsubmit="saveData(event)">
+        <div class="modal-header bg-dark">
+          <h5 class="modal-title text-white">Order Detail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editIndex">
+          <div class="mb-2">
+            <label>Order ID</label>
+            <input type="text" class="form-control" id="orderId" required>
+          </div>
+          <div class="mb-2">
+            <label>Product ID</label>
+            <input type="text" class="form-control" id="productId" required>
+          </div>
+          <div class="mb-2">
+            <label>Quantity</label>
+            <input type="number" class="form-control" id="quantity" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div class="modal fade" id="viewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-info">
+          <h5 class="modal-title text-white">Order Detail Info</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="viewBody"></div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger">
+          <h5 class="modal-title text-white">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete this order detail?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let data = [];
+    let deleteIndex = null;
+
+    function loadData() {
+      data = JSON.parse(localStorage.getItem("orderDetailData")) || [];
+      renderTable();
+    }
+
+    function renderTable() {
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+      data.forEach((item, i) => {
+        tableBody.innerHTML += `
+          <tr>
+            <td>${item.id}</td>
+            <td>${item.orderId}</td>
+            <td>${item.productId}</td>
+            <td>${item.quantity}</td>
+            <td>
+              <button class="btn btn-info btn-sm" onclick="viewData(${i})">View</button>
+              <button class="btn btn-warning btn-sm" onclick="editData(${i})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteData(${i})">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function prepareModal() {
+      document.getElementById("editIndex").value = "";
+      document.getElementById("orderId").value = "";
+      document.getElementById("productId").value = "";
+      document.getElementById("quantity").value = "";
+    }
+
+    function saveData(e) {
+      e.preventDefault();
+      const index = document.getElementById("editIndex").value;
+      const newData = {
+        id: index === "" ? data.length + 1 : data[parseInt(index)].id,
+        orderId: document.getElementById("orderId").value,
+        productId: document.getElementById("productId").value,
+        quantity: document.getElementById("quantity").value,
+      };
+
+      if (index === "") {
+        data.push(newData);
+      } else {
+        data[parseInt(index)] = newData;
+      }
+
+      // Reassign IDs
+      data.forEach((item, i) => item.id = i + 1);
+
+      localStorage.setItem("orderDetailData", JSON.stringify(data));
+      loadData();
+      bootstrap.Modal.getInstance(document.getElementById("addModal")).hide();
+    }
+
+    function editData(index) {
+      document.getElementById("editIndex").value = index;
+      document.getElementById("orderId").value = data[index].orderId;
+      document.getElementById("productId").value = data[index].productId;
+      document.getElementById("quantity").value = data[index].quantity;
+      new bootstrap.Modal(document.getElementById("addModal")).show();
+    }
+
+    function viewData(index) {
+      const item = data[index];
+      document.getElementById("viewBody").innerHTML = `
+        <p><strong>ID:</strong> ${item.id}</p>
+        <p><strong>Order ID:</strong> ${item.orderId}</p>
+        <p><strong>Product ID:</strong> ${item.productId}</p>
+        <p><strong>Quantity:</strong> ${item.quantity}</p>
+      `;
+      new bootstrap.Modal(document.getElementById("viewModal")).show();
+    }
+
+    function deleteData(index) {
+      deleteIndex = index;
+      new bootstrap.Modal(document.getElementById("deleteModal")).show();
+    }
+
+    function confirmDelete() {
+      if (deleteIndex !== null) {
+        data.splice(deleteIndex, 1);
+        data.forEach((item, i) => item.id = i + 1);
+        localStorage.setItem("orderDetailData", JSON.stringify(data));
+        loadData();
+        bootstrap.Modal.getInstance(document.getElementById("deleteModal")).hide();
+        deleteIndex = null;
+      }
+    }
+
+    function searchTable() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const rows = document.querySelectorAll("#tableBody tr");
+      rows.forEach((row, i) => {
+        const idText = data[i].id.toString();
+        row.style.display = idText.includes(search) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>
